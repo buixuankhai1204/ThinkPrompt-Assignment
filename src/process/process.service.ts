@@ -14,16 +14,12 @@ export class ProcessService {
 
   async processPdf(filePath: string): Promise<string> {
     try {
-      // Read the PDF file
       const pdfBuffer = await fs.readFile(filePath);
 
-// Extract text using pdf-parse
       const pdfData = await PdfParse(pdfBuffer);
       const extractedText = pdfData.text; // Raw text from the PDF
 
-      // Convert the text to uppercase
       const uppercaseText = extractedText.toUpperCase();
-      // Load the original PDF using pdf-lib
       const pdfDoc = await PDFDocument.load(pdfBuffer);
       pdfDoc.registerFontkit(fontkit);
 
@@ -31,9 +27,7 @@ export class ProcessService {
       const fontBuffer = await fs.readFile(fontPath); // Replace with your font file
       const customFont = await pdfDoc.embedFont(fontBuffer);
 
-      // Get all pages of the PDF
       const pages = pdfDoc.getPages();
-      // Overlay the uppercase text on each page
       pages.forEach((page, index) => {
         const { width, height } = page.getSize();
 
@@ -47,7 +41,7 @@ export class ProcessService {
 
         page.drawText(uppercaseText, {
           x: 50,
-          y: height- 30,
+          y: height - 30,
           size: 12,
           lineHeight: 14,
           font: customFont, // Use the embedded font
@@ -55,7 +49,6 @@ export class ProcessService {
         });
       });
 
-      // Save the modified PDF
       const modifiedPdfBytes = await pdfDoc.save();
       const modifiedFilePath = filePath.replace('.pdf', '_modified.pdf');
       await fs.writeFile(modifiedFilePath, modifiedPdfBytes);
